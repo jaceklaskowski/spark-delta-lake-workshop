@@ -71,4 +71,56 @@
 
 -- COMMAND ----------
 
+-- MAGIC %md
+-- MAGIC 
+-- MAGIC # Module 1
+
+-- COMMAND ----------
+
+-- MAGIC %md
+-- MAGIC 
+-- MAGIC ## Why Spark SQL
+-- MAGIC 
+-- MAGIC 1. Apache Spark's module for structured data processing (working with structured data)
+-- MAGIC 1. Distributed queries on Apache Spark
+-- MAGIC 1. SQL
+-- MAGIC 1. Support for general-purpose programming languages like Scala, Python, Java and R
+-- MAGIC 1. Advanced query optimizations
+-- MAGIC 1. web UI
+-- MAGIC 1. [Dataflow](https://research.google/pubs/pub43864/)
+
+-- COMMAND ----------
+
+-- MAGIC %md
+-- MAGIC 
+-- MAGIC ## Databricks Platform
+-- MAGIC 
+-- MAGIC 1. [Databricks datasets](https://docs.databricks.com/data/databricks-datasets.html)
+
+-- COMMAND ----------
+
+-- MAGIC %md
+-- MAGIC 
+-- MAGIC ## Loading and Saving Datasets
+-- MAGIC 
+-- MAGIC 1. [Spark SQL, DataFrames and Datasets Guide](https://spark.apache.org/docs/latest/sql-programming-guide.html)
+
+-- COMMAND ----------
+
+-- MAGIC %md
+-- MAGIC 
+-- MAGIC ## Basic DataFrame Transformations
+-- MAGIC 
+-- MAGIC * FIXME
+
+-- COMMAND ----------
+
+-- MAGIC %md
+-- MAGIC 
+-- MAGIC ## Web UI
+-- MAGIC 
+-- MAGIC * FIXME
+
+-- COMMAND ----------
+
 
