@@ -27,7 +27,7 @@
 -- MAGIC   * Databricks Platform
 -- MAGIC   * Loading and Saving Datasets
 -- MAGIC * Part 2
--- MAGIC   * Basic DataFrame Transformations
+-- MAGIC   * Basic Transformations
 -- MAGIC   * Web UI
 -- MAGIC   
 -- MAGIC ### Module 2. Intermediate Spark SQL
@@ -110,7 +110,7 @@
 -- MAGIC 1. Hive Metastore
 -- MAGIC 1. [Dataflow](https://research.google/pubs/pub43864/)
 -- MAGIC 
--- MAGIC We'll get to the above by examples during this session.
+-- MAGIC We'll get to the above by examples during this and future sessions.
 
 -- COMMAND ----------
 
@@ -128,12 +128,24 @@
 
 -- COMMAND ----------
 
+-- MAGIC %fs
+-- MAGIC 
+-- MAGIC ls /databricks-datasets
+
+-- COMMAND ----------
+
 -- MAGIC %md
 -- MAGIC 
 -- MAGIC ## Loading and Saving Datasets
 -- MAGIC 
 -- MAGIC 1. [Spark SQL, DataFrames and Datasets Guide](https://spark.apache.org/docs/latest/sql-programming-guide.html)
 -- MAGIC 1. [PySpark Documentation](https://spark.apache.org/docs/latest/api/python/index.html)
+
+-- COMMAND ----------
+
+--- FIXME Use CTE / with
+with tomek (SELECT * FROM text.`dbfs:/databricks-datasets/README.md`)
+DESCRIBE tomek
 
 -- COMMAND ----------
 
@@ -173,7 +185,39 @@ SELECT * FROM json.`dbfs:/databricks-datasets/nyctaxi/sample/json`
 
 -- COMMAND ----------
 
-DESCRIBE EXTENDED json.`dbfs:/databricks-datasets/nyctaxi/sample/json`
+DESCRIBE (SELECT * FROM json.`dbfs:/databricks-datasets/nyctaxi/sample/json`)
+
+-- COMMAND ----------
+
+--- FIXME it won't work parce qu'il n'est pas "correcte" = Delta Lake
+--- WITH q AS (SELECT * FROM json.`dbfs:/databricks-datasets/nyctaxi/sample/json`)
+--- DESCRIBE q
+
+-- COMMAND ----------
+
+-- MAGIC %python
+-- MAGIC 
+-- MAGIC df = spark.range(5)
+-- MAGIC df['id'].cast("string")
+
+-- COMMAND ----------
+
+-- MAGIC %scala
+-- MAGIC 
+-- MAGIC val df = spark.range(5)
+-- MAGIC // import * from pyspark.sql
+-- MAGIC import org.apache.spark.sql.functions.{upper, lit}
+-- MAGIC val upperC = upper(df("id").cast("string")) as "UPPER"
+-- MAGIC val c2 = lit(1) as "ONE"
+-- MAGIC display(sql(s"select $upperC, $c2 from values (1), (2), (3) as t(id)"))
+
+-- COMMAND ----------
+
+-- MAGIC %scala
+-- MAGIC 
+-- MAGIC println(lit(1) === 1)
+-- MAGIC println(lit(1) == 1)
+-- MAGIC //println(lit(1) = 1)
 
 -- COMMAND ----------
 
@@ -197,6 +241,17 @@ DESCRIBE EXTENDED json.`dbfs:/databricks-datasets/nyctaxi/sample/json`
 -- MAGIC     * `randomSplit` to split records to two Datasets randomly
 -- MAGIC     * `as` to converting a `Row`-based DataFrame to a Dataset
 -- MAGIC     * `flatMap` to "explode" records
+
+-- COMMAND ----------
+
+-- MAGIC %scala
+-- MAGIC 
+-- MAGIC // FIXME Prove that SQL is often the only way to write a query
+-- MAGIC // because the function is only available for SQL (not for Python or Scala)
+-- MAGIC val q1 = spark.range(2).selectExpr("upper(id) as ID").where("ID > 0")
+-- MAGIC import spark.implicits._
+-- MAGIC val q = spark.range(2).selectExpr("upper(id) as ID").where('ID > 0)
+-- MAGIC display(q)
 
 -- COMMAND ----------
 
