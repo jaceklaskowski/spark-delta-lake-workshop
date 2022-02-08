@@ -58,6 +58,7 @@
 -- MAGIC 
 -- MAGIC * [Apache Spark](https://spark.apache.org)
 -- MAGIC * [Delta Lake](https://delta.io)
+-- MAGIC * [The Internals Online Books](https://books.japila.pl/)
 
 -- COMMAND ----------
 
@@ -79,14 +80,16 @@
 -- MAGIC     * Unlike regular functions that act on a single record
 -- MAGIC * Available among [standard functions](https://spark.apache.org/docs/latest/api/scala/org/apache/spark/sql/functions$.html)
 -- MAGIC     * `import org.apache.spark.sql.functions._`
+-- MAGIC     * `from pyspark.sql import functions as F`
 -- MAGIC * Usual suspects: `avg`, `collect_list`, `count`, `min`, `mean`, `sum`
 -- MAGIC * You can create custom user-defined aggregate functions (UDAFs)
+-- MAGIC     * `Aggregator[-IN, BUF, OUT]`
 
 -- COMMAND ----------
 
 -- MAGIC %md
 -- MAGIC 
--- MAGIC ## agg Operator
+-- MAGIC ## DataFrame.agg Operator
 
 -- COMMAND ----------
 
@@ -132,7 +135,7 @@
 
 -- MAGIC %md
 -- MAGIC 
--- MAGIC ## Typed groupByKey Operator
+-- MAGIC ## (Scala) Typed groupByKey Operator
 -- MAGIC 
 -- MAGIC 1. `groupByKey` is `groupBy` with typed interface
 -- MAGIC 
@@ -153,7 +156,7 @@
 
 -- MAGIC %md
 -- MAGIC 
--- MAGIC ## User-Defined Untyped Aggregate Functions (UDAFs)
+-- MAGIC ## (Scala) User-Defined Untyped Aggregate Functions (UDAFs)
 
 -- COMMAND ----------
 
@@ -164,6 +167,7 @@
 -- MAGIC     * **Deprecated since 3.0.0!**
 -- MAGIC 1. [Aggregator](https://spark.apache.org/docs/latest/api/scala/org/apache/spark/sql/expressions/Aggregator.html)
 -- MAGIC     * Registered as a UDF via the `functions.udaf(agg)` method
+-- MAGIC 1. Use SparkSessionExtensions to enable custom UDAFs to any Spark application (incl. pySpark)
 -- MAGIC 1. Switch to [The Internals of Spark SQL](https://books.japila.pl/spark-sql-internals/expressions/Aggregator/)
 
 -- COMMAND ----------
@@ -235,6 +239,23 @@ DESCRIBE (SELECT * FROM json.`dbfs:/databricks-datasets/nyctaxi/sample/json`)
 
 -- COMMAND ----------
 
+-- MAGIC %python 
+-- MAGIC 
+-- MAGIC d1 = spark.range(5)
+-- MAGIC d2 = spark.range(5)
+-- MAGIC 
+-- MAGIC display(d1.join(d2, "id"))
+-- MAGIC 
+-- MAGIC q.explain(extended = True)
+
+-- COMMAND ----------
+
+-- MAGIC %python
+-- MAGIC 
+-- MAGIC display(d1.join(d2).where(d1["id"] == d2["id"]))
+
+-- COMMAND ----------
+
 -- MAGIC %md
 -- MAGIC 
 -- MAGIC ## Join Condition
@@ -283,6 +304,12 @@ DESCRIBE (SELECT * FROM json.`dbfs:/databricks-datasets/nyctaxi/sample/json`)
 
 -- COMMAND ----------
 
+-- MAGIC %python
+-- MAGIC 
+-- MAGIC display(d1.join(d2, "id", "i_n_NE_R"))
+
+-- COMMAND ----------
+
 -- MAGIC %md
 -- MAGIC 
 -- MAGIC ## Join Clause (SQL)
@@ -317,8 +344,9 @@ DESCRIBE (SELECT * FROM json.`dbfs:/databricks-datasets/nyctaxi/sample/json`)
 -- MAGIC 
 -- MAGIC     ```
 -- MAGIC     SELECT /*+ BROADCAST (t1) */ * FROM t1, t2 WHERE t1.id = t2.id
--- MAGIC     BROADCAST, BROADCASTJOIN or MAPJOIN hints supported
 -- MAGIC     ```
+-- MAGIC     
+-- MAGIC 1. (FIXME) BROADCAST, BROADCASTJOIN or MAPJOIN hints supported
 
 -- COMMAND ----------
 
@@ -338,6 +366,13 @@ DESCRIBE (SELECT * FROM json.`dbfs:/databricks-datasets/nyctaxi/sample/json`)
 -- MAGIC 
 -- MAGIC 1. [Join](https://books.japila.pl/spark-sql-internals/logical-operators/Join/)
 -- MAGIC     * Binary logical operator with logical operators for the left and right side, a join type and an optional join expression
+
+-- COMMAND ----------
+
+-- MAGIC %python
+-- MAGIC 
+-- MAGIC q = d1.join(d2, "id")
+-- MAGIC q.explain(extended = True)
 
 -- COMMAND ----------
 

@@ -35,7 +35,7 @@
 -- MAGIC * Part 1
 -- MAGIC   * Aggregations and Joins
 -- MAGIC * Part 2
--- MAGIC   * [Data Sources](https://spark.apache.org/docs/latest/sql-data-sources.html)
+-- MAGIC   * Data Sources
 -- MAGIC   * Loading Datasets from Cloud Storage
 -- MAGIC 
 -- MAGIC ### Module 3. Advanced Spark SQL
