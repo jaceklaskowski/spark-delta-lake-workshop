@@ -79,10 +79,17 @@
 -- MAGIC * **Aggregate functions** accept a group of records as input
 -- MAGIC     * Unlike regular functions that act on a single record
 -- MAGIC * Available among [standard functions](https://spark.apache.org/docs/latest/api/scala/org/apache/spark/sql/functions$.html)
--- MAGIC     * `import org.apache.spark.sql.functions._`
--- MAGIC     * `from pyspark.sql import functions as F`
+-- MAGIC 
+-- MAGIC     ```scala
+-- MAGIC     import org.apache.spark.sql.functions._
+-- MAGIC     ```
+-- MAGIC 
+-- MAGIC     ```python
+-- MAGIC     from pyspark.sql import functions as F
+-- MAGIC     ```
+-- MAGIC 
 -- MAGIC * Usual suspects: `avg`, `collect_list`, `count`, `min`, `mean`, `sum`
--- MAGIC * You can create custom user-defined aggregate functions (UDAFs)
+-- MAGIC * (Scala) You can create custom user-defined aggregate functions (UDAFs)
 -- MAGIC     * `Aggregator[-IN, BUF, OUT]`
 
 -- COMMAND ----------
@@ -103,7 +110,12 @@
 -- MAGIC     ```
 -- MAGIC     
 -- MAGIC 1. Entire Dataset acts as a single group
--- MAGIC     * `groupBy` used to define groups
+-- MAGIC 
+-- MAGIC     ```python
+-- MAGIC     ds.groupBy().agg(F.sum("id") as "sum")
+-- MAGIC     ```
+-- MAGIC 
+-- MAGIC 1. Use `groupBy` to define groups
 -- MAGIC 1. Creates a `DataFrame`
 -- MAGIC     * ...hence considered untyped due to `Row` inside
 -- MAGIC     * Typed variant available
@@ -119,11 +131,11 @@
 
 -- MAGIC %md
 -- MAGIC 
--- MAGIC 1. `groupBy` groups records in a `Dataset` per so-called _discriminator function_
+-- MAGIC 1. `groupBy` groups records in a structured query (`Dataset`) per so-called _discriminator function_
 -- MAGIC 
 -- MAGIC     ```
 -- MAGIC     val nums = spark.range(10)
--- MAGIC     nums.groupBy('id % 2 as "group").agg(sum('id) as "sum")
+-- MAGIC     nums.groupBy("id" % 2 as "group").agg(sum('id) as "sum")
 -- MAGIC     ```
 -- MAGIC     
 -- MAGIC 1. Creates [RelationalGroupedDataset](https://spark.apache.org/docs/latest/api/scala/org/apache/spark/sql/RelationalGroupedDataset.html)
@@ -166,7 +178,7 @@
 -- MAGIC     * The base class for implementing user-defined aggregate functions
 -- MAGIC     * **Deprecated since 3.0.0!**
 -- MAGIC 1. [Aggregator](https://spark.apache.org/docs/latest/api/scala/org/apache/spark/sql/expressions/Aggregator.html)
--- MAGIC     * Registered as a UDF via the `functions.udaf(agg)` method
+-- MAGIC     * Registered as a UDAF via the `functions.udaf(agg)` method
 -- MAGIC 1. Use SparkSessionExtensions to enable custom UDAFs to any Spark application (incl. pySpark)
 -- MAGIC 1. Switch to [The Internals of Spark SQL](https://books.japila.pl/spark-sql-internals/expressions/Aggregator/)
 
@@ -188,21 +200,218 @@
 
 -- MAGIC %md
 -- MAGIC 
--- MAGIC We're going to use [Azure Databricks](https://azure.microsoft.com/en-us/services/databricks/#overview) and the [Databricks datasets](https://docs.databricks.com/data/databricks-datasets.html) to learn Spark SQL.
+-- MAGIC ## Demo
 
 -- COMMAND ----------
 
--- MAGIC %fs
+-- MAGIC %md
 -- MAGIC 
--- MAGIC ls /databricks-datasets
+-- MAGIC [Adding count to the source DataFrame](https://jaceklaskowski.github.io/spark-workshop/exercises/sql/adding-count-to-the-source-dataframe.html)
 
 -- COMMAND ----------
 
-SELECT * FROM json.`dbfs:/databricks-datasets/nyctaxi/sample/json`
+CREATE OR REPLACE TABLE AS VALUES
+  ("05:49:56.604899", "10.0.0.2.54880", "10.0.0.3.5001",  2) labels(column0, column1, column2, label)
 
 -- COMMAND ----------
 
-DESCRIBE (SELECT * FROM json.`dbfs:/databricks-datasets/nyctaxi/sample/json`)
+SELECT * FROM labels
+
+-- COMMAND ----------
+
+-- MAGIC %scala
+-- MAGIC 
+-- MAGIC val input = Seq(
+-- MAGIC   ("05:49:56.604899", "10.0.0.2.54880", "10.0.0.3.5001",  2),
+-- MAGIC   ("05:49:56.604900", "10.0.0.2.54880", "10.0.0.3.5001",  2),
+-- MAGIC   ("05:49:56.604899", "10.0.0.2.54880", "10.0.0.3.5001",  2),
+-- MAGIC   ("05:49:56.604900", "10.0.0.2.54880", "10.0.0.3.5001",  2),
+-- MAGIC   ("05:49:56.604899", "10.0.0.2.54880", "10.0.0.3.5001",  2),
+-- MAGIC   ("05:49:56.604900", "10.0.0.2.54880", "10.0.0.3.5001",  2),
+-- MAGIC   ("05:49:56.604899", "10.0.0.2.54880", "10.0.0.3.5001",  2),
+-- MAGIC   ("05:49:56.604900", "10.0.0.2.54880", "10.0.0.3.5001",  2),
+-- MAGIC   ("05:49:56.604899", "10.0.0.2.54880", "10.0.0.3.5001",  2),
+-- MAGIC   ("05:49:56.604900", "10.0.0.2.54880", "10.0.0.3.5001",  2),
+-- MAGIC   ("05:49:56.604899", "10.0.0.2.54880", "10.0.0.3.5001",  2),
+-- MAGIC   ("05:49:56.604900", "10.0.0.2.54880", "10.0.0.3.5001",  2),
+-- MAGIC   ("05:49:56.604899", "10.0.0.2.54880", "10.0.0.3.5001",  2),
+-- MAGIC   ("05:49:56.604908", "10.0.0.3.5001",  "10.0.0.2.54880", 2),
+-- MAGIC   ("05:49:56.604908", "10.0.0.3.5001",  "10.0.0.2.54880", 2),
+-- MAGIC   ("05:49:56.604908", "10.0.0.3.5001",  "10.0.0.2.54880", 2),
+-- MAGIC   ("05:49:56.604908", "10.0.0.3.5001",  "10.0.0.2.54880", 2),
+-- MAGIC   ("05:49:56.604908", "10.0.0.3.5001",  "10.0.0.2.54880", 2),
+-- MAGIC   ("05:49:56.604908", "10.0.0.3.5001",  "10.0.0.2.54880", 2),
+-- MAGIC   ("05:49:56.604908", "10.0.0.3.5001",  "10.0.0.2.54880", 2)).toDF("column0", "column1", "column2", "label")
+
+-- COMMAND ----------
+
+-- MAGIC %scala
+-- MAGIC 
+-- MAGIC display(input)
+
+-- COMMAND ----------
+
+-- MAGIC %scala
+-- MAGIC 
+-- MAGIC import org.apache.spark.sql.functions._
+-- MAGIC val counts = input.groupBy("column0", "column1", "column2").agg(count("label") as "count")
+-- MAGIC display(counts)
+
+-- COMMAND ----------
+
+-- MAGIC %scala
+-- MAGIC 
+-- MAGIC display(input.join(counts, Seq("column0", "column1", "column2"), "INNER"))
+
+-- COMMAND ----------
+
+-- MAGIC %md
+-- MAGIC 
+-- MAGIC ## Exercises
+
+-- COMMAND ----------
+
+-- MAGIC %md
+-- MAGIC 
+-- MAGIC 1. [Finding Ids of Rows with Word in Array Column](https://jaceklaskowski.github.io/spark-workshop/exercises/sql/Finding-Ids-of-Rows-with-Word-in-Array-Column.html)
+-- MAGIC     * Current time: 3pm
+-- MAGIC     * Exercise time: 15'
+-- MAGIC 1. [Using pivot for Cost Average and Collecting Values](https://jaceklaskowski.github.io/spark-workshop/exercises/sql/Using-pivot-for-Cost-Average-and-Collecting-Values.html)
+-- MAGIC     * Current time: 3:45pm
+-- MAGIC     * Exercise time: 15'
+-- MAGIC 1. [Calculating aggregations](https://jaceklaskowski.github.io/spark-workshop/exercises/spark-sql-exercise-Finding-maximum-value-agg.html)
+
+-- COMMAND ----------
+
+-- MAGIC %md
+-- MAGIC 
+-- MAGIC ### Exercise 1
+
+-- COMMAND ----------
+
+-- Thanks Yegor!
+
+SELECT
+  w,
+  ARRAY_SORT(COLLECT_SET(id)) as ids
+FROM (
+  SELECT 
+  *,
+  -- Is EXPLODE a LATERAL VIEW?
+  EXPLODE(SPLIT(words,",")) AS w
+  FROM (VALUES (1,"one,two,three","one"),
+          (2,"four,one,five","six"),
+          (3,"seven,nine,one,two","eight"),
+          (4,"two,three,five","five"),
+          (5,"six,five,one","seven")) AS t(id,words,word) 
+)
+WHERE w IN ('five','one','six','seven')
+GROUP BY w
+ORDER BY w
+
+-- COMMAND ----------
+
+-- MAGIC %python
+-- MAGIC 
+-- MAGIC words = spark.createDataFrame(
+-- MAGIC     [
+-- MAGIC         ('1', 'one,two,three', 'one'),
+-- MAGIC         ('2', 'four,one,five', 'six'),
+-- MAGIC         ('3', 'seven,nine,one,two', 'eight'),
+-- MAGIC         ('4', 'two,three,five','five'),
+-- MAGIC         ('5', 'six,five,one','seven'),
+-- MAGIC     ], [
+-- MAGIC         'id', 'words','word'
+-- MAGIC     ]
+-- MAGIC )
+-- MAGIC display(words)
+
+-- COMMAND ----------
+
+-- Optionally, register the dataset as a table (for SQL queries)
+CREATE OR REPLACE TABLE words AS
+VALUES
+  (1,"one,two,three","one"),
+  (2,"four,one,five","six"),
+  (3,"seven,nine,one,two","eight"),
+  (4,"two,three,five","five"),
+  (5,"six,five,one","seven") AS t(id,words,word)
+
+-- COMMAND ----------
+
+-- MAGIC %python
+-- MAGIC 
+-- MAGIC data = spark.table("words")
+-- MAGIC from pyspark.sql import functions as F
+-- MAGIC words = data.withColumn("w", F.explode(F.split("words", ",")))
+
+-- COMMAND ----------
+
+-- MAGIC %python
+-- MAGIC 
+-- MAGIC # Thanks Kasia!
+-- MAGIC 
+-- MAGIC from pyspark.sql import functions as F
+-- MAGIC solution = data\
+-- MAGIC     .withColumn("split_values", F.split("words", ","))\
+-- MAGIC     .withColumn("word", F.explode("split_values"))\
+-- MAGIC     .groupby("word")\
+-- MAGIC     .agg(F.collect_set("id").alias("ids"))\
+-- MAGIC     .join(data, on='word')\
+-- MAGIC     .select(F.col("word").alias("w"), F.array_sort("ids").alias("ids"))\
+-- MAGIC     .orderBy("w")
+-- MAGIC display(solution)
+
+-- COMMAND ----------
+
+-- MAGIC %md
+-- MAGIC 
+-- MAGIC ### Exercise 2
+
+-- COMMAND ----------
+
+-- MAGIC %python
+-- MAGIC 
+-- MAGIC # Thanks Barbara!
+-- MAGIC 
+-- MAGIC df = sql(
+-- MAGIC f"""
+-- MAGIC SELECT *
+-- MAGIC FROM VALUES 
+-- MAGIC     ("0", "A", "223", "201603", "PORT"),
+-- MAGIC     ("0", "A", "22", "201602", "PORT"),
+-- MAGIC     ("0", "A", "422", "201601", "DOCK"),
+-- MAGIC     ("1", "B", "3213", "201602", "DOCK"),
+-- MAGIC     ("1", "B", "3213", "201601", "PORT"),
+-- MAGIC     ("2", "C", "2321", "201601", "DOCK")
+-- MAGIC AS t1(id,type,cost,date,ship)
+-- MAGIC """
+-- MAGIC )
+-- MAGIC 
+-- MAGIC part1 = df.groupBy('id', 'type').pivot('date').agg(F.avg("cost")).orderBy('type')
+-- MAGIC display(part1)
+-- MAGIC 
+-- MAGIC part2 = df.groupBy('id','type').pivot('date').agg(F.collect_set("ship")).orderBy('type')
+-- MAGIC display(part2)
+
+-- COMMAND ----------
+
+-- MAGIC %python
+-- MAGIC 
+-- MAGIC df.printSchema()
+
+-- COMMAND ----------
+
+-- MAGIC %python
+-- MAGIC 
+-- MAGIC # Thanks Kasia!
+-- MAGIC data = df
+-- MAGIC solution = data.groupBy(["id","type"]).pivot("date").agg(F.avg("cost")).orderBy("id")
+-- MAGIC # Watch out the types as you can face the following exception
+-- MAGIC # "cost" is not a numeric column. Aggregation function can only be applied on a numeric column.
+-- MAGIC # cost: string
+-- MAGIC # solution = data.groupBy(["id","type"]).pivot("date").avg("cost").orderBy("id")
+-- MAGIC display(solution)
 
 -- COMMAND ----------
 
@@ -220,10 +429,10 @@ DESCRIBE (SELECT * FROM json.`dbfs:/databricks-datasets/nyctaxi/sample/json`)
 
 -- MAGIC %md
 -- MAGIC 
--- MAGIC 1. You can join two `Datasets` using `join` operators
--- MAGIC     1. join for untyped Row-based joins
--- MAGIC     1. Type-preserving joinWith
--- MAGIC     1. crossJoin for explicit cartesian joins
+-- MAGIC 1. You can join two structured queries (`DataFrame`s) using `join` operators
+-- MAGIC     1. `join` for untyped Row-based joins
+-- MAGIC     1. (Scala) Type-preserving `joinWith`
+-- MAGIC     1. `crossJoin` for explicit cartesian joins
 -- MAGIC 
 -- MAGIC 1. Join conditions in `join` or `filter` / `where` operators
 -- MAGIC 
@@ -236,6 +445,22 @@ DESCRIBE (SELECT * FROM json.`dbfs:/databricks-datasets/nyctaxi/sample/json`)
 -- MAGIC     ```
 -- MAGIC 
 -- MAGIC 1. Switch to [The Internals of Spark SQL](https://books.japila.pl/spark-sql-internals/Dataset/)
+
+-- COMMAND ----------
+
+-- MAGIC %python
+-- MAGIC 
+-- MAGIC # FIXME Why does this join work (thought it'd require `crossJoin`?!)
+-- MAGIC 
+-- MAGIC left = spark.range(5)
+-- MAGIC display(left.join(left))
+
+-- COMMAND ----------
+
+-- MAGIC %scala
+-- MAGIC 
+-- MAGIC val left = spark.range(5)
+-- MAGIC display(left.join(left, left("id") === left("id")))
 
 -- COMMAND ----------
 
@@ -252,7 +477,9 @@ DESCRIBE (SELECT * FROM json.`dbfs:/databricks-datasets/nyctaxi/sample/json`)
 
 -- MAGIC %python
 -- MAGIC 
--- MAGIC display(d1.join(d2).where(d1["id"] == d2["id"]))
+-- MAGIC # where is simply an alias to filter
+-- MAGIC q = d1.join(d2).where(d1["id"] == d2["id"])
+-- MAGIC display(q)
 
 -- COMMAND ----------
 
@@ -304,9 +531,20 @@ DESCRIBE (SELECT * FROM json.`dbfs:/databricks-datasets/nyctaxi/sample/json`)
 
 -- COMMAND ----------
 
+-- MAGIC %md
+-- MAGIC 
+-- MAGIC ### Fun Facts
+-- MAGIC 
+-- MAGIC 1. Join names are case-insensitive
+-- MAGIC 1. Names can be written down with `_` (underscores)
+
+-- COMMAND ----------
+
 -- MAGIC %python
 -- MAGIC 
 -- MAGIC display(d1.join(d2, "id", "i_n_NE_R"))
+-- MAGIC display(d1.join(d2, "id", "iNNeR"))
+-- MAGIC display(d1.join(d2, "id", "inner"))
 
 -- COMMAND ----------
 
@@ -323,6 +561,19 @@ DESCRIBE (SELECT * FROM json.`dbfs:/databricks-datasets/nyctaxi/sample/json`)
 -- MAGIC     ```
 -- MAGIC     spark.sql("select * from t1, t2 where t1.id = t2.id")
 -- MAGIC     ```
+
+-- COMMAND ----------
+
+-- MAGIC %md
+-- MAGIC 
+-- MAGIC #### FIXME
+
+-- COMMAND ----------
+
+-- MAGIC %md
+-- MAGIC 
+-- MAGIC 1. Use `SqlBase.g4` to learn more
+-- MAGIC 1. FIXME Demo different `joinCriteria` (`ON` and `USING`)
 
 -- COMMAND ----------
 
@@ -346,7 +597,8 @@ DESCRIBE (SELECT * FROM json.`dbfs:/databricks-datasets/nyctaxi/sample/json`)
 -- MAGIC     SELECT /*+ BROADCAST (t1) */ * FROM t1, t2 WHERE t1.id = t2.id
 -- MAGIC     ```
 -- MAGIC     
--- MAGIC 1. (FIXME) BROADCAST, BROADCASTJOIN or MAPJOIN hints supported
+-- MAGIC 1. BROADCAST, BROADCASTJOIN or MAPJOIN hints supported
+-- MAGIC 1. `spark.sql.autoBroadcastJoinThreshold` configuration property
 
 -- COMMAND ----------
 
@@ -443,4 +695,147 @@ DESCRIBE (SELECT * FROM json.`dbfs:/databricks-datasets/nyctaxi/sample/json`)
 
 -- MAGIC %md
 -- MAGIC 
--- MAGIC 1. [Adaptive Query Execution (AQE)](https://books.japila.pl/spark-sql-internals/adaptive-query-execution/)
+-- MAGIC 1. [The official documentation of Spark SQL](https://spark.apache.org/docs/latest/sql-performance-tuning.html#adaptive-query-execution)
+-- MAGIC 1. [The Internals of Spark SQL](https://books.japila.pl/spark-sql-internals/adaptive-query-execution/)
+
+-- COMMAND ----------
+
+-- MAGIC %md
+-- MAGIC 
+-- MAGIC #### FIXME
+-- MAGIC 
+-- MAGIC 1. Work on demos for different AQE optimizations based on [The official documentation of Spark SQL](https://spark.apache.org/docs/latest/sql-performance-tuning.html#adaptive-query-execution)
+
+-- COMMAND ----------
+
+-- MAGIC %md
+-- MAGIC 
+-- MAGIC 1. Current time: 4:50pm
+-- MAGIC 2. Break: 10'
+
+-- COMMAND ----------
+
+-- MAGIC %md
+-- MAGIC 
+-- MAGIC ## Exercises
+
+-- COMMAND ----------
+
+-- MAGIC %md
+-- MAGIC 
+-- MAGIC 1. [Finding Most Populated Cities Per Country](https://jaceklaskowski.github.io/spark-workshop/exercises/sql/Finding-Most-Populated-Cities-Per-Country.html)
+
+-- COMMAND ----------
+
+-- MAGIC %python
+-- MAGIC 
+-- MAGIC cities = spark\
+-- MAGIC     .read\
+-- MAGIC     .format("csv")\
+-- MAGIC     .option("header", "true")\
+-- MAGIC     .load("dbfs:/FileStore/shared_uploads/jacek@japila.pl/cities-2.csv")
+-- MAGIC cities.createOrReplaceTempView("cities")
+
+-- COMMAND ----------
+
+SELECT * FROM cities
+
+-- COMMAND ----------
+
+-- MAGIC %python
+-- MAGIC 
+-- MAGIC # Thanks Kuba
+-- MAGIC 
+-- MAGIC from pyspark.sql import functions as F
+-- MAGIC cities_with_pop_long = cities\
+-- MAGIC     .withColumn("pop", F.translate("population", " ", "").cast("long"))
+-- MAGIC biggest_cities_per_country = cities_with_pop_long\
+-- MAGIC     .groupBy('country')\
+-- MAGIC     .agg(F.max("pop").alias("max_population"))
+-- MAGIC solution = biggest_cities_per_country\
+-- MAGIC     .join(cities_with_pop_long, ['country'])\
+-- MAGIC     .where(biggest_cities_per_country["max_population"] == cities_with_pop_long["pop"])\
+-- MAGIC     .select('name', 'country', 'population')
+-- MAGIC display(solution)
+
+-- COMMAND ----------
+
+-- Kuba's Solution
+-- FIXME type of the population column
+SELECT 
+    orig.name,
+    pars.country,
+    pars.population
+FROM(
+    SELECT 
+        country,
+        FIRST(name) AS name,
+        MAX(population) AS population
+    FROM (
+        SELECT * 
+        FROM cities
+        ORDER BY population DESC
+    )
+    GROUP BY country
+) AS pars
+LEFT JOIN cities AS orig
+ON pars.country = orig.country AND pars.name = orig.name
+
+-- COMMAND ----------
+
+-- Yegor's solution
+-- Mind it uses window aggregation
+SELECT 
+        name, 
+        country, 
+        population
+    FROM (
+        SELECT 
+            *,
+            MAX(CAST(REGEXP_REPLACE(population," ","") AS LONG)) OVER (PARTITION BY country) AS m
+        FROM (VALUES ("Warsaw","Poland","1 764 615"),
+                    ("Cracow","Poland","769 498"),
+                    ("Paris","France","2 206 488"),
+                    ("Villeneuve-Loubet","France","15 020"),
+                    ("Pittsburgh PA","United States","302 407"),
+ ("Chicago IL","United States","2 716 000"),
+                    ("Milwaukee WI","United States","595 351"),
+                    ("Vilnius","Lithuania","580 020"),
+                    ("Stockholm","Sweden","972 647"),
+                    ("Goteborg","Sweden","580 020")) AS t(name,country,population))
+    WHERE CAST(REGEXP_REPLACE(population," ","") AS INT) = m
+
+-- COMMAND ----------
+
+-- MAGIC %md
+-- MAGIC 
+-- MAGIC # Questions
+-- MAGIC 
+-- MAGIC 1. Using Spark predicate pushdown in Spark SQL queries?  
+
+-- COMMAND ----------
+
+-- MAGIC %python
+-- MAGIC 
+-- MAGIC q = cities.where("name = 'Warsaw'")
+-- MAGIC display(q)
+
+-- COMMAND ----------
+
+-- MAGIC %python
+-- MAGIC 
+-- MAGIC cities.write.parquet("cities_pq")
+
+-- COMMAND ----------
+
+-- MAGIC %python
+-- MAGIC 
+-- MAGIC cities_pq = spark.read.parquet("dbfs:/cities_pq")
+-- MAGIC q = cities_pq.where("name = 'Warsaw'")
+-- MAGIC display(q)
+
+-- COMMAND ----------
+
+-- MAGIC %md
+-- MAGIC 
+-- MAGIC Current time: 6:05pm

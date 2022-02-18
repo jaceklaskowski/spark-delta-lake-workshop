@@ -106,6 +106,7 @@
 -- MAGIC     1. Column Pruning
 -- MAGIC     1. Whole-Stage Java Code Generation (CodeGen)
 -- MAGIC     1. Cost-Based Optimization (CBO)
+-- MAGIC     1. Adaptive Query Execution (AQE)
 -- MAGIC 1. web UI
 -- MAGIC 1. Hive Metastore
 -- MAGIC 1. [Dataflow](https://research.google/pubs/pub43864/)
@@ -143,12 +144,6 @@
 
 -- COMMAND ----------
 
---- FIXME Use CTE / with
-with tomek (SELECT * FROM text.`dbfs:/databricks-datasets/README.md`)
-DESCRIBE tomek
-
--- COMMAND ----------
-
 SELECT * FROM text.`dbfs:/databricks-datasets/README.md`
 
 -- COMMAND ----------
@@ -161,7 +156,7 @@ SELECT * FROM text.`dbfs:/databricks-datasets/README.md`
 
 -- MAGIC %python
 -- MAGIC 
--- MAGIC spark.read.format("text").load("dbfs:/databricks-datasets/nyctaxi/readme_nyctaxi.txt").show(truncate = False)
+-- MAGIC display(spark.read.format("text").load("dbfs:/databricks-datasets/nyctaxi/readme_nyctaxi.txt"))
 
 -- COMMAND ----------
 
@@ -202,25 +197,6 @@ DESCRIBE (SELECT * FROM json.`dbfs:/databricks-datasets/nyctaxi/sample/json`)
 
 -- COMMAND ----------
 
--- MAGIC %scala
--- MAGIC 
--- MAGIC val df = spark.range(5)
--- MAGIC // import * from pyspark.sql
--- MAGIC import org.apache.spark.sql.functions.{upper, lit}
--- MAGIC val upperC = upper(df("id").cast("string")) as "UPPER"
--- MAGIC val c2 = lit(1) as "ONE"
--- MAGIC display(sql(s"select $upperC, $c2 from values (1), (2), (3) as t(id)"))
-
--- COMMAND ----------
-
--- MAGIC %scala
--- MAGIC 
--- MAGIC println(lit(1) === 1)
--- MAGIC println(lit(1) == 1)
--- MAGIC //println(lit(1) = 1)
-
--- COMMAND ----------
-
 -- MAGIC %md
 -- MAGIC 
 -- MAGIC ## Basic DataFrame Transformations
@@ -241,17 +217,6 @@ DESCRIBE (SELECT * FROM json.`dbfs:/databricks-datasets/nyctaxi/sample/json`)
 -- MAGIC     * `randomSplit` to split records to two Datasets randomly
 -- MAGIC     * `as` to converting a `Row`-based DataFrame to a Dataset
 -- MAGIC     * `flatMap` to "explode" records
-
--- COMMAND ----------
-
--- MAGIC %scala
--- MAGIC 
--- MAGIC // FIXME Prove that SQL is often the only way to write a query
--- MAGIC // because the function is only available for SQL (not for Python or Scala)
--- MAGIC val q1 = spark.range(2).selectExpr("upper(id) as ID").where("ID > 0")
--- MAGIC import spark.implicits._
--- MAGIC val q = spark.range(2).selectExpr("upper(id) as ID").where('ID > 0)
--- MAGIC display(q)
 
 -- COMMAND ----------
 
