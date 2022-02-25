@@ -226,3 +226,95 @@ DESC FUNCTION EXTENDED array_position
 -- MAGIC %md
 -- MAGIC 
 -- MAGIC Yay! Finished at 7pm exactly!
+
+-- COMMAND ----------
+
+-- MAGIC %md
+-- MAGIC 
+-- MAGIC ## Demo
+
+-- COMMAND ----------
+
+-- MAGIC %python
+-- MAGIC 
+-- MAGIC from pyspark.sql.functions import *
+-- MAGIC display(spark.range(0).select(col("id") * 2))
+
+-- COMMAND ----------
+
+-- MAGIC %python
+-- MAGIC 
+-- MAGIC q = spark.range(1).select((col("id") * 2).alias("multiply_col_name")).alias("multiply_dataset_alias")
+-- MAGIC q = q.withColumn("extra_col", lit(2))
+-- MAGIC 
+-- MAGIC # You can have a dataset (table) inside another table
+-- MAGIC # a table inside a table inside a table
+-- MAGIC q = q.withColumn("struct", struct("multiply_dataset_alias.multiply_col_name", "extra_col"))
+-- MAGIC display(q.select("struct.extra_col", "extra_col"))
+
+-- COMMAND ----------
+
+-- MAGIC %python
+-- MAGIC 
+-- MAGIC df = spark.createDataFrame([('abcd','123')], ['s', 'd'])
+-- MAGIC display(df.select(concat(df.s, df.d).alias('concat_demo')))
+
+-- COMMAND ----------
+
+-- MAGIC %scala
+-- MAGIC 
+-- MAGIC val q = spark.range(2).groupBy().count()
+-- MAGIC display(q)
+
+-- COMMAND ----------
+
+-- MAGIC %python
+-- MAGIC 
+-- MAGIC q = spark.range(2).groupBy().count()
+-- MAGIC display(q)
+
+-- COMMAND ----------
+
+-- MAGIC %python
+-- MAGIC 
+-- MAGIC q = spark.range(2).agg(count("*").alias("count"))
+-- MAGIC display(q)
+
+-- COMMAND ----------
+
+-- MAGIC %python
+-- MAGIC 
+-- MAGIC # How to demo a standard function with multiple rows (to work on)?
+-- MAGIC display(spark.range(2).agg(count("id")))
+
+-- COMMAND ----------
+
+-- MAGIC %md
+-- MAGIC 
+-- MAGIC ## Demo
+-- MAGIC 
+-- MAGIC 1. Different cols with values
+-- MAGIC 1. Daily granularity
+-- MAGIC 1. Aggregations = sum, last_value, mean, max
+
+-- COMMAND ----------
+
+-- MAGIC %python
+-- MAGIC 
+-- MAGIC data = spark.createDataFrame([(0, "jan", 28, "mon"), (1, "jacek", 48, "mon"), (2, "lukasz", 58, "tue")], ['id', 'name', 'salary', 'day'])
+-- MAGIC display(data)
+
+-- COMMAND ----------
+
+-- MAGIC %python
+-- MAGIC 
+-- MAGIC display(data.summary())
+
+-- COMMAND ----------
+
+-- MAGIC %python
+-- MAGIC 
+-- MAGIC m = min(length("name")).alias("min")
+-- MAGIC c = count("*").alias("count")
+-- MAGIC all_aggs = [m, c]
+-- MAGIC display(data.groupBy("day").agg(*all_aggs))
