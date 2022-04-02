@@ -118,15 +118,23 @@
 
 -- COMMAND ----------
 
+-- MAGIC %md
+-- MAGIC 
+-- MAGIC ## Break
+-- MAGIC 
+-- MAGIC A 10-minute break starts NOW :)
+
+-- COMMAND ----------
+
 -- MAGIC %python
 -- MAGIC 
 -- MAGIC display(dbutils.fs.ls('/databricks-datasets'))
 
 -- COMMAND ----------
 
--- MAGIC %fs
+-- MAGIC %python
 -- MAGIC 
--- MAGIC ls /databricks-datasets
+-- MAGIC dbutils.fs.help()
 
 -- COMMAND ----------
 
@@ -138,6 +146,105 @@
 -- MAGIC 1. [Spark SQL, DataFrames and Datasets Guide](https://spark.apache.org/docs/latest/sql-programming-guide.html)
 -- MAGIC 1. [PySpark Documentation](https://spark.apache.org/docs/latest/api/python/index.html)
 -- MAGIC 1. [SQL Reference](https://spark.apache.org/docs/latest/sql-ref.html)
+
+-- COMMAND ----------
+
+-- MAGIC %fs
+-- MAGIC 
+-- MAGIC ls dbfs:/databricks-datasets/bikeSharing/
+
+-- COMMAND ----------
+
+SELECT * FROM text.`dbfs:/databricks-datasets/bikeSharing/README.md`
+
+-- COMMAND ----------
+
+-- MAGIC %fs
+-- MAGIC 
+-- MAGIC ls dbfs:/databricks-datasets/bikeSharing/data-001/
+
+-- COMMAND ----------
+
+-- FIXME Find a way to specify OPTION
+-- SELECT * FROM csv.`dbfs:/databricks-datasets/bikeSharing/data-001/day.csv`
+-- OPTION (header=true)
+
+-- COMMAND ----------
+
+-- MAGIC %scala
+-- MAGIC 
+-- MAGIC val q = spark.read.format("csv").option("header", true).load("dbfs:/databricks-datasets/bikeSharing/data-001/day.csv")
+
+-- COMMAND ----------
+
+-- MAGIC %scala
+-- MAGIC 
+-- MAGIC val q = spark
+-- MAGIC   .read
+-- MAGIC   .format("csv")
+-- MAGIC   .option("header", true)
+-- MAGIC   .option("inferSchema", true)
+-- MAGIC   .load("dbfs:/databricks-datasets/bikeSharing/data-001/day.csv")
+
+-- COMMAND ----------
+
+-- MAGIC %scala
+-- MAGIC 
+-- MAGIC val q = spark
+-- MAGIC   .read
+-- MAGIC   .format("csv")
+-- MAGIC   .option("header", true)
+-- MAGIC   .option("inferSchema", true)
+-- MAGIC   // .schema(???) // <-- a way to specify the expected schema
+-- MAGIC   .load("dbfs:/databricks-datasets/bikeSharing/data-001/day.csv")
+
+-- COMMAND ----------
+
+-- MAGIC %scala
+-- MAGIC 
+-- MAGIC display(q)
+
+-- COMMAND ----------
+
+-- MAGIC %scala
+-- MAGIC 
+-- MAGIC q.write.saveAsTable("bike_sharing")
+
+-- COMMAND ----------
+
+SHOW TABLES LIKE 'bike_sharing'
+
+-- COMMAND ----------
+
+SELECT * FROM bike_sharing
+
+-- COMMAND ----------
+
+-- MAGIC %python
+-- MAGIC 
+-- MAGIC spark.table('bike_sharing').display()
+
+-- COMMAND ----------
+
+-- MAGIC %python
+-- MAGIC 
+-- MAGIC spark.table('bike_sharing').describe().display()
+
+-- COMMAND ----------
+
+-- MAGIC %md
+-- MAGIC 
+-- MAGIC Where to find more about what's supported in SQL? Ask no more and find the following docs:
+-- MAGIC 
+-- MAGIC 1. https://github.com/apache/spark/blob/master/sql/catalyst/src/main/antlr4/org/apache/spark/sql/catalyst/parser/SqlBaseParser.g4
+-- MAGIC 1. https://spark.apache.org/docs/latest/sql-ref-syntax.html
+
+-- COMMAND ----------
+
+-- MAGIC %python
+-- MAGIC 
+-- MAGIC # You can convert the DF to a pandas DF and use shape
+-- MAGIC spark.table('bike_sharing').toPandas().shape
 
 -- COMMAND ----------
 
