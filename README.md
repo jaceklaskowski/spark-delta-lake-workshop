@@ -1,6 +1,6 @@
-# Apache Spark™ and Delta Lake Workshops
+# Apache Spark and Delta Lake Workshop
 
-This repo contains the [Databricks notebooks](#databricks-notebooks) that I use during **Apache Spark and Delta Lake Workshops**.
+This repo contains [Databricks notebooks](#databricks-notebooks) for a variety of **Apache Spark and Delta Lake Workshop** events.
 
 ## Databricks Notebooks
 
