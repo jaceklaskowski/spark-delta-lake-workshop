@@ -252,6 +252,14 @@ SELECT * FROM text.`dbfs:/databricks-datasets/README.md`
 
 -- COMMAND ----------
 
+-- MAGIC %md
+-- MAGIC 
+-- MAGIC ## NYCtaxi Dataset
+-- MAGIC 
+-- MAGIC Let's switch gears to NYC Taxi dataset.
+
+-- COMMAND ----------
+
 -- MAGIC %fs
 -- MAGIC 
 -- MAGIC ls dbfs:/databricks-datasets/nyctaxi/
