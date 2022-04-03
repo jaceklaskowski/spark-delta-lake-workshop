@@ -96,6 +96,10 @@ spark
 
 # COMMAND ----------
 
+# MAGIC %sql SHOW TABLES LIKE 'demo_streams'
+
+# COMMAND ----------
+
 # MAGIC %sql
 # MAGIC 
 # MAGIC CREATE TABLE demo_streams (
@@ -119,6 +123,12 @@ spark
 
 # COMMAND ----------
 
+# MAGIC %scala
+# MAGIC 
+# MAGIC spark.conf.get("spark.sql.sources.default")
+
+# COMMAND ----------
+
 # MAGIC %md
 # MAGIC 
 # MAGIC ### Streaming Table
@@ -130,6 +140,12 @@ spark
 
 # COMMAND ----------
 
+# this is a brach query / Spark SQL
+spark.read.table('demo_streams').display()
+
+# COMMAND ----------
+
+# this is a streaming query / Spark Structured Streaming
 spark.readStream.table('demo_streams').display()
 
 # COMMAND ----------
@@ -137,6 +153,13 @@ spark.readStream.table('demo_streams').display()
 # MAGIC %md
 # MAGIC 
 # MAGIC ### INSERT INTOs
+
+# COMMAND ----------
+
+# MAGIC %sql
+# MAGIC 
+# MAGIC -- Let's have a look at the schema of this Delta Lake table
+# MAGIC DESC TABLE demo_streams
 
 # COMMAND ----------
 
@@ -176,3 +199,28 @@ spark.readStream.table('demo_streams').display()
 
 for s in spark.streams.active:
     s.stop()
+
+# COMMAND ----------
+
+# MAGIC %sql
+# MAGIC 
+# MAGIC SELECT * FROM demo_streams
+
+# COMMAND ----------
+
+dbutils.notebook.exit(0)
+
+# COMMAND ----------
+
+inputNode = spark.readStream.format('delta').load('')
+# some transformation happens here
+someTransformation = inputNode
+someTransformation.writeStream.format('delta').trigger('5 seconds').start
+
+# COMMAND ----------
+
+spark
+
+# COMMAND ----------
+
+

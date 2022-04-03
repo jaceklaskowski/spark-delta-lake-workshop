@@ -59,6 +59,11 @@
 
 # COMMAND ----------
 
+# it does not really work. Sorry.
+spark._jvm.sessionState.conf.defaultDataSourceName
+
+# COMMAND ----------
+
 # MAGIC %scala
 # MAGIC 
 # MAGIC spark.sessionState.conf.defaultDataSourceName
@@ -114,6 +119,10 @@ data.write.format("parquet").mode("overwrite").saveAsTable("demo_table")
 # MAGIC %sql
 # MAGIC 
 # MAGIC SHOW TABLES LIKE 'demo_table'
+
+# COMMAND ----------
+
+# MAGIC %sql SELECT * FROM demo_table
 
 # COMMAND ----------
 
@@ -188,6 +197,10 @@ DeltaTable.convertToDelta(identifier='demo_table', sparkSession=spark)
 
 # COMMAND ----------
 
+# MAGIC %sql SHOW TABLES LIKE 'delta_demo'
+
+# COMMAND ----------
+
 # MAGIC %sql
 # MAGIC 
 # MAGIC CREATE TABLE delta_demo
@@ -252,6 +265,14 @@ spark.table("delta_demo").display()
 
 # COMMAND ----------
 
+# MAGIC %fs ls dbfs:/user/hive/warehouse/delta_demo/_delta_log/
+
+# COMMAND ----------
+
+# MAGIC %fs head /user/hive/warehouse/delta_demo/_delta_log/00000000000000000001.json
+
+# COMMAND ----------
+
 spark.table('delta_demo').sort('id').display()
 
 # COMMAND ----------
@@ -287,6 +308,12 @@ spark.table('delta_demo').display()
 # COMMAND ----------
 
 # MAGIC %fs ls dbfs:/user/hive/warehouse/delta_demo/
+
+# COMMAND ----------
+
+# MAGIC %sql
+# MAGIC 
+# MAGIC SELECT * FROM delta_demo
 
 # COMMAND ----------
 
