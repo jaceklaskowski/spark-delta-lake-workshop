@@ -13,7 +13,7 @@
 # MAGIC 
 # MAGIC This is one of the modules of the Spark and Delta Lake workshop to teach you how to use and think like a Spark SQL and Delta Lake pro.
 # MAGIC 
-# MAGIC This Databricks notebook uses Python (as the default language) with some SQL magic to teach you [Spark Structured Streaming](https://spark.apache.org/docs/latest/structured-streaming-programming-guide.html). Enjoy!
+# MAGIC This Databricks notebook teaches you [Spark Structured Streaming](https://spark.apache.org/docs/latest/structured-streaming-programming-guide.html) with Python (as the default language) and some SQL magic. Enjoy!
 # MAGIC 
 # MAGIC ---
 # MAGIC 
@@ -121,13 +121,22 @@ spark
 
 # MAGIC %md
 # MAGIC 
-# MAGIC ### Streaming Table Data
+# MAGIC ### Streaming Table
 # MAGIC 
 # MAGIC 1. [Table streaming reads and writes](https://docs.databricks.com/delta/delta-streaming.html)
+# MAGIC 1. [Streaming Table APIs](https://spark.apache.org/docs/latest/structured-streaming-programming-guide.html#streaming-table-apis)
+# MAGIC 1. [Demo notebooks](https://docs.databricks.com/spark/latest/structured-streaming/demo-notebooks.html)
+# MAGIC 1. [Structured Streaming DataFrames](https://docs.databricks.com/notebooks/visualizations/index.html#structured-streaming-dataframes)
 
 # COMMAND ----------
 
 spark.readStream.table('demo_streams').display()
+
+# COMMAND ----------
+
+# MAGIC %md
+# MAGIC 
+# MAGIC ### INSERT INTOs
 
 # COMMAND ----------
 
@@ -145,11 +154,23 @@ spark.readStream.table('demo_streams').display()
 
 # COMMAND ----------
 
+# MAGIC %md
+# MAGIC 
+# MAGIC ### DESCRIBE HISTORY
+
+# COMMAND ----------
+
 # MAGIC %sql
 # MAGIC 
 # MAGIC -- Delta-specific SQL statement
 # MAGIC -- https://docs.databricks.com/delta/delta-utility.html#delta-history
 # MAGIC DESC HISTORY demo_streams
+
+# COMMAND ----------
+
+# MAGIC %md
+# MAGIC 
+# MAGIC ### Stop Streaming Queries
 
 # COMMAND ----------
 
