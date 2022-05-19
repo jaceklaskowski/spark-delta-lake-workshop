@@ -53,6 +53,12 @@
 
 # COMMAND ----------
 
+# MAGIC %scala
+# MAGIC 
+# MAGIC println(io.delta.VERSION)
+
+# COMMAND ----------
+
 # MAGIC %md
 # MAGIC 
 # MAGIC ## Default File Format (Databricks)
@@ -109,10 +115,12 @@ spark.conf.get('spark.sql.sources.default')
 
 # COMMAND ----------
 
-from pyspark.sql.functions import *
-
-data = spark.range(5).withColumn('rand', rand(seed=42) * 3)
-data.write.format("parquet").mode("overwrite").saveAsTable("demo_table")
+# MAGIC %python
+# MAGIC 
+# MAGIC from pyspark.sql.functions import *
+# MAGIC 
+# MAGIC data = spark.range(5).withColumn('rand', rand(seed=42) * 3)
+# MAGIC data.write.format("parquet").mode("overwrite").saveAsTable("demo_table")
 
 # COMMAND ----------
 
