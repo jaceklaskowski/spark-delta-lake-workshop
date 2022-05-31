@@ -21,6 +21,12 @@
 
 # MAGIC %md
 # MAGIC 
+# MAGIC This notebook is available in [jaceklaskowski/spark-delta-lake-workshop](https://github.com/jaceklaskowski/spark-delta-lake-workshop) repository on GitHub.
+
+# COMMAND ----------
+
+# MAGIC %md
+# MAGIC 
 # MAGIC ## Learning Resources
 # MAGIC 
 # MAGIC The recommended learning resources (for reading and watching) to get better equipped for the module:
@@ -65,11 +71,6 @@
 
 # COMMAND ----------
 
-# it does not really work. Sorry.
-spark._jvm.sessionState.conf.defaultDataSourceName
-
-# COMMAND ----------
-
 # MAGIC %scala
 # MAGIC 
 # MAGIC spark.sessionState.conf.defaultDataSourceName
@@ -82,6 +83,12 @@ spark._jvm.sessionState.conf.defaultDataSourceName
 # COMMAND ----------
 
 spark.conf.get('spark.sql.sources.default')
+
+# COMMAND ----------
+
+# MAGIC %md
+# MAGIC 
+# MAGIC # Module 2
 
 # COMMAND ----------
 
@@ -110,6 +117,8 @@ spark.conf.get('spark.sql.sources.default')
 # COMMAND ----------
 
 # MAGIC %md
+# MAGIC 
+# MAGIC Let's use some Python to create a parquet table programmatically.
 # MAGIC 
 # MAGIC https://spark.apache.org/docs/latest/api/python/reference/api/pyspark.sql.functions.rand.html
 
@@ -193,6 +202,18 @@ DeltaTable.convertToDelta(identifier='demo_table', sparkSession=spark)
 
 # COMMAND ----------
 
+# MAGIC %sql
+# MAGIC 
+# MAGIC DESC EXTENDED demo_table
+
+# COMMAND ----------
+
+# MAGIC %fs
+# MAGIC 
+# MAGIC ls dbfs:/user/hive/warehouse/demo_table/_delta_log
+
+# COMMAND ----------
+
 # MAGIC %md
 # MAGIC 
 # MAGIC ### From Scratch
@@ -249,13 +270,23 @@ spark.table("delta_demo").display()
 
 # COMMAND ----------
 
+# MAGIC %fs ls dbfs:/user/hive/warehouse/delta_demo/
+
+# COMMAND ----------
+
 # MAGIC %fs head /user/hive/warehouse/delta_demo/_delta_log/00000000000000000000.json
 
 # COMMAND ----------
 
 # MAGIC %md
 # MAGIC 
-# MAGIC ### Writing to Delta Table
+# MAGIC ## Create, Insert, Update, Delete, Merge
+
+# COMMAND ----------
+
+# MAGIC %md
+# MAGIC 
+# MAGIC ### INSERT
 
 # COMMAND ----------
 
@@ -297,6 +328,10 @@ spark.table('delta_demo').display()
 
 # COMMAND ----------
 
+# MAGIC %fs ls dbfs:/user/hive/warehouse/delta_demo/_delta_log/
+
+# COMMAND ----------
+
 # MAGIC %md
 # MAGIC 
 # MAGIC Let's have a look at the transaction log.
@@ -322,6 +357,12 @@ spark.table('delta_demo').display()
 # MAGIC %sql
 # MAGIC 
 # MAGIC SELECT * FROM delta_demo
+
+# COMMAND ----------
+
+# MAGIC %sql
+# MAGIC 
+# MAGIC DESC HISTORY delta_demo
 
 # COMMAND ----------
 
@@ -356,6 +397,10 @@ spark.table('delta_demo').display()
 
 # COMMAND ----------
 
+# MAGIC %fs ls dbfs:/user/hive/warehouse/delta_demo/_delta_log/
+
+# COMMAND ----------
+
 # MAGIC %md
 # MAGIC 
 # MAGIC ### UPDATE
@@ -370,6 +415,10 @@ spark.table('delta_demo').display()
 
 # COMMAND ----------
 
+# MAGIC %fs ls dbfs:/user/hive/warehouse/delta_demo/_delta_log/
+
+# COMMAND ----------
+
 # MAGIC %md
 # MAGIC 
 # MAGIC ### MERGE INTO
@@ -377,6 +426,14 @@ spark.table('delta_demo').display()
 # COMMAND ----------
 
 # MAGIC %md [Demo: Merge Operation](https://books.japila.pl/delta-lake-internals/demo/merge-operation/)
+
+# COMMAND ----------
+
+# MAGIC %md
+# MAGIC 
+# MAGIC ## Schema Enforcement and Evolution
+# MAGIC 
+# MAGIC Head over to [Diving Into Delta Lake: Schema Enforcement & Evolution](https://databricks.com/blog/2019/09/24/diving-into-delta-lake-schema-enforcement-evolution.html).
 
 # COMMAND ----------
 
