@@ -45,6 +45,31 @@
 
 # COMMAND ----------
 
+# MAGIC %scala
+# MAGIC 
+# MAGIC import org.apache.spark.sql.functions._
+# MAGIC import org.apache.spark.sql.SparkSession
+# MAGIC 
+# MAGIC val spark = SparkSession
+# MAGIC   .builder
+# MAGIC   .appName("StructuredNetworkWordCount")
+# MAGIC   .getOrCreate()
+# MAGIC   
+# MAGIC import spark.implicits._
+
+# COMMAND ----------
+
+from pyspark.sql import SparkSession
+from pyspark.sql.functions import explode
+from pyspark.sql.functions import split
+
+spark = SparkSession \
+    .builder \
+    .appName("StructuredNetworkWordCount") \
+    .getOrCreate()
+
+# COMMAND ----------
+
 # MAGIC %md
 # MAGIC 
 # MAGIC 1. Structured Streaming provides fast, scalable, fault-tolerant, end-to-end exactly-once stream processing without the user having to reason about streaming
