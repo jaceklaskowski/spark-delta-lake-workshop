@@ -45,6 +45,30 @@
 
 # COMMAND ----------
 
+# MAGIC %md
+# MAGIC 
+# MAGIC ## Exercise
+# MAGIC 
+# MAGIC Write a Spark Structured Streaming application (using Python perhaps) that loads CSV files from a directory and print them out to `console`.
+# MAGIC 
+# MAGIC [Exercise: Streaming CSV Datasets](https://jaceklaskowski.github.io/spark-workshop/exercises/spark-structured-streaming-exercise-Streaming-CSV-Datasets.html)
+
+# COMMAND ----------
+
+# MAGIC %scala
+# MAGIC 
+# MAGIC import org.apache.spark.sql.types._
+# MAGIC val my_schema = new StructType()
+# MAGIC val stream = spark.readStream.schema(my_schema).csv("csvs")
+# MAGIC stream
+# MAGIC   .withColumn("name", lit("Sebastian in Stockholm"))
+# MAGIC   .writeStream.format("console")
+# MAGIC   .option("truncate", false)
+# MAGIC   .option("checkpointLocation", "/tmp/jonas")
+# MAGIC   .start
+
+# COMMAND ----------
+
 # MAGIC %scala
 # MAGIC 
 # MAGIC import org.apache.spark.sql.functions._
